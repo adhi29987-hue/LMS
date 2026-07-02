@@ -1,0 +1,23 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="form-card">
+    <h2>Issue a Book</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="field-error">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn-solid">Confirm Issue</button>
+            <a href="{% url 'dashboard' %}"><button type="button" class="btn-outline">Cancel</button></a>
+        </div>
+    </form>
+    {% if form.fields.book.queryset.count == 0 %}
+    <div class="msg msg-warning" style="margin-top:15px;">No books are currently available. All books are issued.</div>
+    {% endif %}
+</div>
+{% endblock %}

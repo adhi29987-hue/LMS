@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+
+<div id="header">
+    <div id="logo">NATIONAL COLLEGE LMS</div>
+    <a href="{% url 'dashboard' %}" class="nav-link {% if request.resolver_match.url_name == 'dashboard' %}active-link{% endif %}">Dashboard</a>
+    <a href="{% url 'books_list' %}" class="nav-link {% if 'book' in request.resolver_match.url_name %}active-link{% endif %}">Books</a>
+    <a href="{% url 'students_list' %}" class="nav-link {% if 'student' in request.resolver_match.url_name %}active-link{% endif %}">Students</a>
+    <a href="{% url 'issue_book' %}" class="nav-link {% if request.resolver_match.url_name == 'issue_book' %}active-link{% endif %}">Issue Books</a>
+    <a href="{% url 'attendance_list' %}" class="nav-link {% if 'attendance' in request.resolver_match.url_name %}active-link{% endif %}">Attendance</a>
+    <a href="{% url 'reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active-link{% endif %}">Reports</a>
+    <a href="{% url 'logout' %}" class="nav-link" style="color: #ef4444;">Logout</a>
+    <div id="profile-pic">{{ request.user.username|first|upper }}</div>
+</div>
+
+<div id="main-container">
+    {% if messages %}
+    <div class="messages">
+        {% for message in messages %}
+        <div class="msg msg-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% block content %}{% endblock %}
+</div>
+
+<script src="{% static 'script.js' %}"></script>
+</body>
+</html>

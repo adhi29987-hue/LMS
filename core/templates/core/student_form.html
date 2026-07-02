@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="form-card">
+    <h2>{{ action }} Student</h2>
+    <form method="POST">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="form-group">
+            <label>{{ field.label }}</label>
+            {{ field }}
+            {% if field.errors %}<div class="field-error">{{ field.errors.0 }}</div>{% endif %}
+        </div>
+        {% endfor %}
+        <div class="form-actions">
+            <button type="submit" class="btn-solid">{{ action }} Student</button>
+            <a href="{% url 'students_list' %}"><button type="button" class="btn-outline">Cancel</button></a>
+        </div>
+    </form>
+</div>
+{% endblock %}

@@ -1,0 +1,43 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="left-side" style="width:100%;">
+    <div class="page-header">
+        <h2>Books Directory</h2>
+        <a href="{% url 'book_add' %}"><button class="btn-solid">+ Add New Book</button></a>
+    </div>
+    <form method="GET" class="search-bar">
+        <input type="text" name="q" value="{{ query }}" placeholder="Search by title or author...">
+        <button type="submit" class="btn-solid">Search</button>
+        {% if query %}<a href="{% url 'books_list' %}"><button type="button" class="btn-outline">Clear</button></a>{% endif %}
+    </form>
+    <table>
+        <tr>
+            <th>Book ID</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        {% for book in books %}
+        <tr>
+            <td>{{ book.book_id }}</td>
+            <td>{{ book.title }}</td>
+            <td>{{ book.author }}</td>
+            <td>
+                {% if book.status == 'Available' %}
+                <span class="badge badge-returned">Available</span>
+                {% else %}
+                <span class="badge badge-issued">Issued</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'book_edit' book.pk %}"><button class="btn-action btn-edit">Edit</button></a>
+                <a href="{% url 'book_delete' book.pk %}"><button class="btn-action btn-delete">Delete</button></a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="5" style="text-align:center;color:gray;">No books found. <a href="{% url 'book_add' %}">Add one now.</a></td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

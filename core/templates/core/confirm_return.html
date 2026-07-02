@@ -1,0 +1,20 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="form-card">
+    <h2>Confirm Return</h2>
+    <p>Are you sure you want to mark this book as returned?</p>
+    <table style="margin:20px 0;">
+        <tr><th>Book</th><td>{{ issue.book.title }}</td></tr>
+        <tr><th>Student</th><td>{{ issue.student.name }}</td></tr>
+        <tr><th>Issue Date</th><td>{{ issue.issue_date|date:"d M Y" }}</td></tr>
+        <tr><th>Due Date</th><td>{{ issue.return_date|date:"d M Y" }}</td></tr>
+    </table>
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-actions">
+            <button type="submit" class="btn-solid">Confirm Return</button>
+            <a href="{% url 'dashboard' %}"><button type="button" class="btn-outline">Cancel</button></a>
+        </div>
+    </form>
+</div>
+{% endblock %}

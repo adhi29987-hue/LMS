@@ -1,0 +1,96 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="blue-box">
+    <h1>Welcome, {{ request.user.username|title }}</h1>
+    <p id="date-display"></p>
+    <div class="time" id="time-display"></div>
+    <div class="hero-buttons">
+        <a href="{% url 'issue_book' %}"><button class="btn-blue">Return Book</button></a>
+        <a href="{% url 'issue_book' %}"><button class="btn-green">Issue Book</button></a>
+        <a href="{% url 'book_add' %}"><button class="btn-white">+ Add Book</button></a>
+    </div>
+</div>
+
+<div class="stats-container">
+    <div class="stat-box">
+        <h2 class="stat-number">{{ total_books }}</h2>
+        <p class="stat-text">Total Books</p>
+    </div>
+    <div class="stat-box">
+        <h2 class="stat-number">{{ issued_books }}</h2>
+        <p class="stat-text">Issued Books</p>
+    </div>
+    <div class="stat-box">
+        <h2 class="stat-number">{{ available_books }}</h2>
+        <p class="stat-text">Available Books</p>
+    </div>
+    <div class="stat-box">
+        <h2 class="stat-number">{{ total_students }}</h2>
+        <p class="stat-text">Students</p>
+    </div>
+    <div class="stat-box">
+        <h2 class="stat-number">{{ overdue_books }}</h2>
+        <p class="stat-text">Overdue Books</p>
+    </div>
+</div>
+
+<div class="bottom-layout">
+    <div class="left-side">
+        <h3>Recent Activity</h3>
+        <table>
+            <tr>
+                <th>Student</th>
+                <th>Book</th>
+                <th>Issue Date</th>
+                <th>Return Date</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+            {% for issue in issues %}
+            <tr>
+                <td>{{ issue.student.name }}</td>
+                <td>{{ issue.book.title }}</td>
+                <td>{{ issue.issue_date|date:"d M Y" }}</td>
+                <td>{{ issue.return_date|date:"d M Y" }}</td>
+                <td>
+                    {% if issue.is_returned %}
+                    <span class="badge badge-returned">Returned</span>
+                    {% elif issue.return_date < today %}
+                    <span class="badge badge-overdue">Overdue</span>
+                    {% else %}
+                    <span class="badge badge-issued">Issued</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if not issue.is_returned %}
+                    <a href="{% url 'return_book' issue.pk %}"><button class="btn-action btn-return">Return</button></a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" style="text-align:center;color:gray;">No recent activity. Issue a book to get started.</td></tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div class="right-side">
+        <div class="action-box">
+            <h3>Quick Actions</h3>
+            <a href="{% url 'attendance_add' %}"><button class="btn-outline" style="width:100%;margin-bottom:10px;">Mark Attendance</button></a>
+            <a href="{% url 'issue_book' %}"><button class="btn-solid" style="width:100%;">Issue a Book</button></a>
+        </div>
+        <div class="action-box">
+            <h3>Notifications</h3>
+            <ul class="notification-list">
+                {% if overdue_books > 0 %}
+                <li>{{ overdue_books }} book{{ overdue_books|pluralize }} overdue.</li>
+                {% else %}
+                <li style="color:green;">No overdue books!</li>
+                {% endif %}
+                <li>{{ total_students }} student{{ total_students|pluralize }} registered.</li>
+                <li>{{ available_books }} book{{ available_books|pluralize }} available.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+{% endblock %}

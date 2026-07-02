@@ -1,0 +1,35 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="left-side" style="width:100%;">
+    <div class="page-header">
+        <h2>Attendance (Today)</h2>
+        <a href="{% url 'attendance_add' %}"><button class="btn-solid">+ Mark Attendance</button></a>
+    </div>
+    <table>
+        <tr>
+            <th>Name</th>
+            <th>Role</th>
+            <th>Time In</th>
+            <th>Status</th>
+        </tr>
+        {% for a in attendances %}
+        <tr>
+            <td>{{ a.name }}</td>
+            <td>{{ a.role }}</td>
+            <td>{{ a.time_in|time:"h:i A" }}</td>
+            <td>
+                {% if a.status == 'Present' %}
+                <span class="badge badge-returned">Present</span>
+                {% elif a.status == 'Late' %}
+                <span class="badge badge-overdue">Late</span>
+                {% else %}
+                <span class="badge badge-issued">{{ a.status }}</span>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" style="text-align:center;color:gray;">No attendance records today. <a href="{% url 'attendance_add' %}">Mark now.</a></td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

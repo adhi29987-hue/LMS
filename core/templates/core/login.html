@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Login — Library Management System</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #F4F7FC; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+        .login-card { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 380px; }
+        .login-logo { color: #1a56db; font-size: 20px; font-weight: bold; text-align: center; margin-bottom: 8px; }
+        .login-title { text-align: center; font-size: 14px; color: gray; margin-bottom: 30px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; font-size: 14px; color: #374151; margin-bottom: 5px; }
+        .form-group input { width: 100%; padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 5px; font-size: 15px; outline: none; }
+        .form-group input:focus { border-color: #1a56db; }
+        .btn-login { width: 100%; padding: 12px; background: #1a56db; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        .btn-login:hover { background: #1e40af; }
+        .error-msg { background: #fee2e2; color: #ef4444; padding: 10px; border-radius: 5px; margin-bottom: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+<div class="login-card">
+    <div class="login-logo">NATIONAL COLLEGE LMS</div>
+    <div class="login-title">Sign in to your account</div>
+    {% if messages %}
+        {% for message in messages %}
+        <div class="error-msg">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    <form method="POST">
+        {% csrf_token %}
+        <div class="form-group">
+            <label>Username</label>
+            <input type="text" name="username" placeholder="Enter username" required autofocus>
+        </div>
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" name="password" placeholder="Enter password" required>
+        </div>
+        <button type="submit" class="btn-login">Sign In</button>
+    </form>
+</div>
+</body>
+</html>

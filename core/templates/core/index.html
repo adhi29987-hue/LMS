@@ -1,0 +1,234 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Library Management System</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}">
+</head>
+<body>
+
+    <div id="header">
+        <div id="logo">NATIONAL COLLEGE LMS</div>
+        <a href="#" class="nav-link active-link" data-target="page-dashboard">Dashboard</a>
+        <a href="#" class="nav-link" data-target="page-books">Books</a>
+        <a href="#" class="nav-link" data-target="page-students">Students</a>
+        <a href="#" class="nav-link" data-target="page-issue">Issue Books</a>
+        <a href="#" class="nav-link" data-target="page-attendance">Attendance</a>
+        <a href="#" class="nav-link" data-target="page-reports">Reports</a>
+        
+        <div id="profile-pic">A</div>
+    </div>
+
+    <div id="main-container">
+        
+        <div id="page-dashboard" class="page-section active">
+            <div class="blue-box">
+                <!-- <h1>Welcome, Admin</h1> -->
+                <p></p>
+                <div class="time"></div>
+                
+                <div class="hero-buttons">
+                    <button class="btn-blue">Return Book</button>
+                    <button class="btn-green">Issue Book</button>
+                    <button class="btn-white">+ Add Book</button>
+                </div>
+            </div>
+
+            <div class="stats-container">
+                <div class="stat-box">
+                    <h2 class="stat-number">{{ total_books }}</h2>
+                    <p class="stat-text">Total Books</p>
+                </div>
+                <div class="stat-box">
+                    <h2 class="stat-number">{{ issued_books }}</h2>
+                    <p class="stat-text">Issued Books</p>
+                </div>
+                <div class="stat-box">
+                    <h2 class="stat-number">{{ available_books }}</h2>
+                    <p class="stat-text">Available Books</p>
+                </div>
+                <div class="stat-box">
+                    <h2 class="stat-number">{{ total_students }}</h2>
+                    <p class="stat-text">Students</p>
+                </div>
+                <div class="stat-box">
+                    <h2 class="stat-number">{{ overdue_books }}</h2>
+                    <p class="stat-text">Overdue Books</p>
+                </div>
+            </div>
+
+            <div class="bottom-layout">
+                
+                <div class="left-side">
+                    <h3>Recent Activity</h3>
+                    <table>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Book Name</th>
+                            <th>Issue Date</th>
+                            <th>Return Date</th>
+                            <th>Status</th>
+                        </tr>
+                        {% for issue in issues %}
+                        <tr>
+                            <td>{{ issue.student.name }}</td>
+                            <td>{{ issue.book.title }}</td>
+                            <td>{{ issue.issue_date|date:"d M Y" }}</td>
+                            <td>{{ issue.return_date|date:"d M Y" }}</td>
+                            <td>
+                                {% if issue.is_returned %}
+                                <span class="badge badge-returned">Returned</span>
+                                {% elif issue.return_date < now.date and not issue.is_returned %}
+                                <span class="badge badge-overdue">Overdue</span>
+                                {% else %}
+                                <span class="badge badge-issued">Issued</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr><td colspan="5">No recent activity.</td></tr>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <div class="right-side">
+                    <div class="action-box">
+                        <h3>Quick Actions</h3>
+                        <button class="btn-outline">Check In</button>
+                        <button class="btn-solid">Check Out</button>
+                    </div>
+
+                    <div class="action-box">
+                        <h3>Notifications</h3>
+                        <ul class="notification-list">
+                            <li>System is running smoothly.</li>
+                            <li>{{ overdue_books }} books are overdue.</li>
+                        </ul>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div id="page-books" class="page-section">
+            <div class="left-side" style="width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Books Directory</h2>
+                    <button class="btn-solid" style="padding: 10px 20px;">+ Add New Book</button>
+                </div>
+                <table>
+                    <tr>
+                        <th>Book ID</th>
+                        <th>Title</th>
+                        <th>Author</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for book in books %}
+                    <tr>
+                        <td>{{ book.book_id }}</td>
+                        <td>{{ book.title }}</td>
+                        <td>{{ book.author }}</td>
+                        <td>
+                            {% if book.status == 'Available' %}
+                            <span class="badge badge-returned">Available</span>
+                            {% else %}
+                            <span class="badge badge-issued">Issued</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">No books registered yet.</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div id="page-students" class="page-section">
+            <div class="left-side" style="width: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <h2>Students Management</h2>
+                    <button class="btn-solid" style="padding: 10px 20px;">+ Add New Student</button>
+                </div>
+                <table>
+                    <tr>
+                        <th>Student ID</th>
+                        <th>Name</th>
+                        <th>Department</th>
+                    </tr>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.department }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="3">No students registered yet.</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div id="page-issue" class="page-section">
+            <div class="left-side" style="width: 50%; margin: 0 auto;">
+                <h2>Issue a Book</h2>
+                <div style="margin-top: 20px;">
+                    <form method="POST" action="{% url 'dashboard' %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="issue_book">
+                        <label style="display:block; margin-bottom: 5px;">Student Name/ID</label>
+                        <input type="text" name="student_id" placeholder="e.g. S1042" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;" required>
+                        
+                        <label style="display:block; margin-bottom: 5px;">Book Title/ID</label>
+                        <input type="text" name="book_id" placeholder="e.g. B001" style="width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;" required>
+                        
+                        <label style="display:block; margin-bottom: 5px;">Return Date</label>
+                        <input type="date" name="return_date" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;" required>
+                        
+                        <button type="submit" class="btn-solid" style="width: 100%; padding: 12px; font-size: 16px;">Confirm Issue</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="page-attendance" class="page-section">
+            <div class="left-side" style="width: 100%;">
+                <h2>Attendance (Today)</h2>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Time In</th>
+                        <th>Status</th>
+                    </tr>
+                    {% for attendance in attendances %}
+                    <tr>
+                        <td>{{ attendance.name }}</td>
+                        <td>{{ attendance.role }}</td>
+                        <td>{{ attendance.time_in|time:"H:i A" }}</td>
+                        <td><span class="badge badge-returned">{{ attendance.status }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4">No attendance records yet.</td></tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+
+        <div id="page-reports" class="page-section">
+            <div class="stats-container">
+                <div class="stat-box" style="width: 30%;">
+                    <h2 class="stat-number">100%</h2>
+                    <p class="stat-text">System Uptime</p>
+                </div>
+                <div class="stat-box" style="width: 30%;">
+                    <h2 class="stat-number">{{ total_students }}</h2>
+                    <p class="stat-text">New Registrations</p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="{% static 'script.js' %}"></script>
+</body>
+</html>
