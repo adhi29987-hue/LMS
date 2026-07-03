@@ -222,7 +222,10 @@ def download_excel(request):
     from django.http import FileResponse, Http404
     import os
     from django.conf import settings
-    file_path = os.path.join(settings.BASE_DIR, 'LMS_Data.xlsx')
+    if os.environ.get('DATABASE_URL'):
+        file_path = '/tmp/LMS_Data.xlsx'
+    else:
+        file_path = os.path.join(settings.BASE_DIR, 'LMS_Data.xlsx')
     if os.path.exists(file_path):
         response = FileResponse(open(file_path, 'rb'), content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="LMS_Data.xlsx"'
@@ -230,4 +233,3 @@ def download_excel(request):
     else:
         messages.error(request, 'Excel file has not been generated yet. Please add some data first.')
         return redirect('dashboard')
-

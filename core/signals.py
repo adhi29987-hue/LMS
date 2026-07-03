@@ -8,7 +8,11 @@ from django.conf import settings
 from .models import Book, Student, Issue, Attendance
 
 
-EXCEL_PATH = os.path.join(settings.BASE_DIR, 'LMS_Data.xlsx')
+# Use /tmp in production (read-only filesystem) or BASE_DIR locally
+if os.environ.get('DATABASE_URL'):
+    EXCEL_PATH = os.path.join('/tmp', 'LMS_Data.xlsx')
+else:
+    EXCEL_PATH = os.path.join(settings.BASE_DIR, 'LMS_Data.xlsx')
 
 
 def get_border():
