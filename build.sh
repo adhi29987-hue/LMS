@@ -14,7 +14,7 @@ if [ -n "$DJANGO_SUPERUSER_USERNAME" ]; then
 from django.contrib.auth.models import User
 import os
 username = os.environ.get('DJANGO_SUPERUSER_USERNAME', 'admin')
-password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin')
+password = os.environ.get('DJANGO_SUPERUSER_PASSWORD', 'admin123')
 try:
     u = User.objects.get(username=username)
     u.set_password(password)
