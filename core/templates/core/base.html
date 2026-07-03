@@ -15,7 +15,7 @@
     <a href="{% url 'issue_book' %}" class="nav-link {% if request.resolver_match.url_name == 'issue_book' %}active-link{% endif %}">Issue Books</a>
     <a href="{% url 'attendance_list' %}" class="nav-link {% if 'attendance' in request.resolver_match.url_name %}active-link{% endif %}">Attendance</a>
     <a href="{% url 'reports' %}" class="nav-link {% if request.resolver_match.url_name == 'reports' %}active-link{% endif %}">Reports</a>
-    <a href="{% url 'logout' %}" class="nav-link" style="color: #ef4444;">Logout</a>
+    <form method="POST" action="{% url 'logout' %}" style="display:inline;margin:0;">{% csrf_token %}<button type="submit" class="nav-link" style="color:#ef4444;background:none;border:none;cursor:pointer;font-size:15px;padding:8px 16px;">Logout</button></form>
     <div id="profile-pic">{{ request.user.username|first|upper }}</div>
 </div>
 

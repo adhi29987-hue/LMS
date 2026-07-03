@@ -1,0 +1,39 @@
+{% extends 'core/base.html' %}
+{% block content %}
+<div class="left-side" style="width:100%;">
+    <div class="page-header">
+        <h2>Currently Issued Books</h2>
+        <a href="{% url 'issue_book' %}"><button class="btn-solid">+ Issue a Book</button></a>
+    </div>
+    <table>
+        <tr>
+            <th>Book</th>
+            <th>Student</th>
+            <th>Issue Date</th>
+            <th>Due Date</th>
+            <th>Status</th>
+            <th>Action</th>
+        </tr>
+        {% for issue in issues %}
+        <tr>
+            <td>{{ issue.book.title }}</td>
+            <td>{{ issue.student.name }}</td>
+            <td>{{ issue.issue_date|date:"d M Y" }}</td>
+            <td>{{ issue.return_date|date:"d M Y" }}</td>
+            <td>
+                {% if issue.return_date < today %}
+                <span class="badge badge-overdue">Overdue</span>
+                {% else %}
+                <span class="badge badge-issued">Issued</span>
+                {% endif %}
+            </td>
+            <td>
+                <a href="{% url 'return_book' issue.pk %}"><button class="btn-action btn-return">Return</button></a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="6" style="text-align:center;color:gray;">No books are currently issued. <a href="{% url 'issue_book' %}">Issue one now.</a></td></tr>
+        {% endfor %}
+    </table>
+</div>
+{% endblock %}

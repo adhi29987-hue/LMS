@@ -39,5 +39,16 @@
         <tr><td colspan="5" style="text-align:center;color:gray;">No books found. <a href="{% url 'book_add' %}">Add one now.</a></td></tr>
         {% endfor %}
     </table>
+    {% if page_obj.has_other_pages %}
+    <div class="pagination" style="margin-top:16px;display:flex;gap:8px;align-items:center;">
+        {% if page_obj.has_previous %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.previous_page_number }}"><button class="btn-outline">&#8592; Prev</button></a>
+        {% endif %}
+        <span style="font-size:14px;color:#6b7280;">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+        {% if page_obj.has_next %}
+        <a href="?{% if query %}q={{ query }}&{% endif %}page={{ page_obj.next_page_number }}"><button class="btn-outline">Next &#8594;</button></a>
+        {% endif %}
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

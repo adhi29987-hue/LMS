@@ -15,6 +15,7 @@ urlpatterns = [
     path('students/<int:pk>/delete/', views.student_delete, name='student_delete'),
     path('issue/', views.issue_book, name='issue_book'),
     path('issue/<int:pk>/return/', views.return_book, name='return_book'),
+    path('issued/', views.issued_books, name='issued_books'),
     path('attendance/', views.attendance_list, name='attendance_list'),
     path('attendance/add/', views.attendance_add, name='attendance_add'),
     path('reports/', views.reports, name='reports'),

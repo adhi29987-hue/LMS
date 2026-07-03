@@ -1,4 +1,5 @@
 from django import forms
+from django.utils import timezone
 from .models import Book, Student, Issue, Attendance
 
 class BookForm(forms.ModelForm):
@@ -32,6 +33,12 @@ class IssueForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['book'].queryset = Book.objects.filter(status='Available')
+
+    def clean_return_date(self):
+        return_date = self.cleaned_data.get('return_date')
+        if return_date and return_date < timezone.now().date():
+            raise forms.ValidationError('Return date cannot be in the past.')
+        return return_date
 
 class AttendanceForm(forms.ModelForm):
     class Meta:

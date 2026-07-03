@@ -3,9 +3,10 @@ from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
+from django.core.paginator import Paginator
+from django.db import transaction
 from .models import Book, Student, Issue, Attendance
 from .forms import BookForm, StudentForm, IssueForm, AttendanceForm
-
 
 def login_view(request):
     if request.user.is_authenticated:
@@ -23,7 +24,8 @@ def login_view(request):
 
 
 def logout_view(request):
-    logout(request)
+    if request.method == 'POST':
+        logout(request)
     return redirect('login')
 
 
@@ -51,8 +53,10 @@ def dashboard(request):
 @login_required
 def books_list(request):
     query = request.GET.get('q', '')
-    books = Book.objects.filter(title__icontains=query) | Book.objects.filter(author__icontains=query) if query else Book.objects.all()
-    return render(request, 'core/books.html', {'books': books, 'query': query})
+    books_qs = Book.objects.filter(title__icontains=query) | Book.objects.filter(author__icontains=query) if query else Book.objects.all()
+    paginator = Paginator(books_qs.order_by('title'), 20)
+    page = paginator.get_page(request.GET.get('page'))
+    return render(request, 'core/books.html', {'books': page, 'query': query, 'page_obj': page})
 
 
 @login_required
@@ -89,8 +93,10 @@ def book_delete(request, pk):
 @login_required
 def students_list(request):
     query = request.GET.get('q', '')
-    students = Student.objects.filter(name__icontains=query) | Student.objects.filter(department__icontains=query) if query else Student.objects.all()
-    return render(request, 'core/students.html', {'students': students, 'query': query})
+    students_qs = Student.objects.filter(name__icontains=query) | Student.objects.filter(department__icontains=query) if query else Student.objects.all()
+    paginator = Paginator(students_qs.order_by('name'), 20)
+    page = paginator.get_page(request.GET.get('page'))
+    return render(request, 'core/students.html', {'students': page, 'query': query, 'page_obj': page})
 
 
 @login_required
@@ -128,10 +134,18 @@ def student_delete(request, pk):
 def issue_book(request):
     form = IssueForm(request.POST or None)
     if form.is_valid():
-        issue = form.save(commit=False)
-        issue.book.status = 'Issued'
-        issue.book.save()
-        issue.save()
+        book = form.cleaned_data['book']
+        with transaction.atomic():
+            # Re-fetch with lock to prevent double-issue race condition
+            locked_book = Book.objects.select_for_update().get(pk=book.pk)
+            if locked_book.status != 'Available':
+                messages.error(request, f'"{locked_book.title}" is no longer available.')
+                return redirect('issue_book')
+            issue = form.save(commit=False)
+            issue.book = locked_book
+            locked_book.status = 'Issued'
+            locked_book.save()
+            issue.save()
         messages.success(request, f'"{issue.book.title}" issued to {issue.student.name} successfully!')
         return redirect('dashboard')
     return render(request, 'core/issue.html', {'form': form})
@@ -140,20 +154,34 @@ def issue_book(request):
 @login_required
 def return_book(request, pk):
     issue = get_object_or_404(Issue, pk=pk)
+    if issue.is_returned:
+        messages.warning(request, 'This book has already been returned.')
+        return redirect('issued_books')
     if request.method == 'POST':
-        issue.is_returned = True
-        issue.save()
-        issue.book.status = 'Available'
-        issue.book.save()
+        with transaction.atomic():
+            issue.is_returned = True
+            issue.save()
+            issue.book.status = 'Available'
+            issue.book.save()
         messages.success(request, f'"{issue.book.title}" returned successfully!')
-        return redirect('dashboard')
+        return redirect('issued_books')
     return render(request, 'core/confirm_return.html', {'issue': issue})
 
 
 @login_required
 def attendance_list(request):
-    attendances = Attendance.objects.all().order_by('-id')
-    return render(request, 'core/attendance.html', {'attendances': attendances})
+    attendances_qs = Attendance.objects.all().order_by('-id')
+    paginator = Paginator(attendances_qs, 20)
+    page = paginator.get_page(request.GET.get('page'))
+    return render(request, 'core/attendance.html', {'attendances': page, 'page_obj': page})
+
+
+@login_required
+def issued_books(request):
+    """Dedicated view listing all currently issued (unreturned) books."""
+    today = timezone.now().date()
+    issues = Issue.objects.select_related('student', 'book').filter(is_returned=False).order_by('return_date')
+    return render(request, 'core/issued_books.html', {'issues': issues, 'today': today})
 
 
 @login_required
