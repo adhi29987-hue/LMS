@@ -1,6 +1,4 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.contrib.auth import authenticate, login, logout
-from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils import timezone
 from django.core.paginator import Paginator
@@ -8,28 +6,8 @@ from django.db import transaction
 from .models import Book, Student, Issue, Attendance
 from .forms import BookForm, StudentForm, IssueForm, AttendanceForm
 
-def login_view(request):
-    if request.user.is_authenticated:
-        return redirect('dashboard')
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        user = authenticate(request, username=username, password=password)
-        if user:
-            login(request, user)
-            return redirect('dashboard')
-        else:
-            messages.error(request, 'Invalid username or password.')
-    return render(request, 'core/login.html')
 
 
-def logout_view(request):
-    if request.method == 'POST':
-        logout(request)
-    return redirect('login')
-
-
-@login_required
 def dashboard(request):
     total_books = Book.objects.count()
     issued_books = Book.objects.filter(status='Issued').count()
@@ -50,7 +28,6 @@ def dashboard(request):
     return render(request, 'core/dashboard.html', context)
 
 
-@login_required
 def books_list(request):
     query = request.GET.get('q', '')
     books_qs = Book.objects.filter(title__icontains=query) | Book.objects.filter(author__icontains=query) if query else Book.objects.all()
@@ -59,7 +36,6 @@ def books_list(request):
     return render(request, 'core/books.html', {'books': page, 'query': query, 'page_obj': page})
 
 
-@login_required
 def book_add(request):
     form = BookForm(request.POST or None)
     if form.is_valid():
@@ -69,7 +45,6 @@ def book_add(request):
     return render(request, 'core/book_form.html', {'form': form, 'action': 'Add'})
 
 
-@login_required
 def book_edit(request, pk):
     book = get_object_or_404(Book, pk=pk)
     form = BookForm(request.POST or None, instance=book)
@@ -80,7 +55,6 @@ def book_edit(request, pk):
     return render(request, 'core/book_form.html', {'form': form, 'action': 'Edit'})
 
 
-@login_required
 def book_delete(request, pk):
     book = get_object_or_404(Book, pk=pk)
     if request.method == 'POST':
@@ -90,7 +64,6 @@ def book_delete(request, pk):
     return render(request, 'core/confirm_delete.html', {'object': book, 'type': 'Book'})
 
 
-@login_required
 def students_list(request):
     query = request.GET.get('q', '')
     students_qs = Student.objects.filter(name__icontains=query) | Student.objects.filter(department__icontains=query) if query else Student.objects.all()
@@ -99,7 +72,6 @@ def students_list(request):
     return render(request, 'core/students.html', {'students': page, 'query': query, 'page_obj': page})
 
 
-@login_required
 def student_add(request):
     form = StudentForm(request.POST or None)
     if form.is_valid():
@@ -109,7 +81,6 @@ def student_add(request):
     return render(request, 'core/student_form.html', {'form': form, 'action': 'Add'})
 
 
-@login_required
 def student_edit(request, pk):
     student = get_object_or_404(Student, pk=pk)
     form = StudentForm(request.POST or None, instance=student)
@@ -120,7 +91,6 @@ def student_edit(request, pk):
     return render(request, 'core/student_form.html', {'form': form, 'action': 'Edit'})
 
 
-@login_required
 def student_delete(request, pk):
     student = get_object_or_404(Student, pk=pk)
     if request.method == 'POST':
@@ -130,7 +100,6 @@ def student_delete(request, pk):
     return render(request, 'core/confirm_delete.html', {'object': student, 'type': 'Student'})
 
 
-@login_required
 def issue_book(request):
     form = IssueForm(request.POST or None)
     if form.is_valid():
@@ -151,7 +120,6 @@ def issue_book(request):
     return render(request, 'core/issue.html', {'form': form})
 
 
-@login_required
 def return_book(request, pk):
     issue = get_object_or_404(Issue, pk=pk)
     if issue.is_returned:
@@ -168,7 +136,6 @@ def return_book(request, pk):
     return render(request, 'core/confirm_return.html', {'issue': issue})
 
 
-@login_required
 def attendance_list(request):
     attendances_qs = Attendance.objects.all().order_by('-id')
     paginator = Paginator(attendances_qs, 20)
@@ -176,7 +143,6 @@ def attendance_list(request):
     return render(request, 'core/attendance.html', {'attendances': page, 'page_obj': page})
 
 
-@login_required
 def issued_books(request):
     """Dedicated view listing all currently issued (unreturned) books."""
     today = timezone.now().date()
@@ -184,7 +150,6 @@ def issued_books(request):
     return render(request, 'core/issued_books.html', {'issues': issues, 'today': today})
 
 
-@login_required
 def attendance_add(request):
     form = AttendanceForm(request.POST or None)
     if form.is_valid():
@@ -194,7 +159,6 @@ def attendance_add(request):
     return render(request, 'core/attendance_form.html', {'form': form})
 
 
-@login_required
 def reports(request):
     today = timezone.now().date()
     total_books = Book.objects.count()
@@ -217,7 +181,6 @@ def reports(request):
     return render(request, 'core/reports.html', context)
 
 
-@login_required
 def download_excel(request):
     from django.http import FileResponse, Http404
     import os
